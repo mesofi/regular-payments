@@ -1,12 +1,3 @@
-# property needed when running the integration tests for embeded mongodb.
-de:
-  flapdoodle:
-    mongodb:
-      embedded:
-        version: 5.0.5
-
 spring:
-  data:
-    mongodb:
-      host: localhost
-      database: saintseiyauniverse-itest
+  datasource:
+    url: jdbc:h2:mem:payments-itest;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL
