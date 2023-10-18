@@ -9,9 +9,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class Payment {
     @Id
@@ -22,7 +24,10 @@ public class Payment {
     @Column(name = "amount")
     private BigDecimal amount;
 
+    @Column(name = "payment_date")
+    private String paymentDate;
+
     @ManyToOne
-    @JoinColumn(name = "FK_UNIT", nullable = false, updatable = false)
+    @JoinColumn(name = "fk_unit", nullable = false, updatable = false)
     private Unit unit;
 }

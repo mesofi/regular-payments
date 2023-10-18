@@ -9,12 +9,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author Greg Turnquist
  */
-@Data
+@Getter
+@Setter
 @Entity
 public class Unit {
 
@@ -28,4 +30,9 @@ public class Unit {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "unit")
     private List<Payment> payments;
+
+    @Override
+    public String toString() {
+        return number;
+    }
 }
