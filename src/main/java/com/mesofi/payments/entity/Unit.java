@@ -19,7 +19,6 @@ import lombok.Setter;
 @Setter
 @Entity
 public class Unit {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "row_id")

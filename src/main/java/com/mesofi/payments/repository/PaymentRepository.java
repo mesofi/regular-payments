@@ -7,6 +7,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import com.mesofi.payments.entity.Payment;
 
 @RepositoryRestResource(collectionResourceRel = "payments", path = "payments")
-public interface PaymentRepository extends PagingAndSortingRepository<Payment, Long>,CrudRepository<Payment, Long> {
+public interface PaymentRepository extends PagingAndSortingRepository<Payment, Long>, CrudRepository<Payment, Long> {
 
 }

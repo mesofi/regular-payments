@@ -1,6 +1,7 @@
 package com.mesofi.payments.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,13 +22,16 @@ public class Payment {
     @Column(name = "row_id")
     private long id;
 
+    @ManyToOne
+    @JoinColumn(name = "fk_unit", nullable = false, updatable = false)
+    private Unit unit;
+
     @Column(name = "amount")
     private BigDecimal amount;
 
     @Column(name = "payment_date")
-    private String paymentDate;
+    private LocalDateTime paymentDate;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_unit", nullable = false, updatable = false)
-    private Unit unit;
+    @Column(name = "remarks")
+    private String remarks;
 }
