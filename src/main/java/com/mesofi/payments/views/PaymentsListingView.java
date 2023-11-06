@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.data.repository.CrudRepository;
+
 import com.mesofi.payments.entity.Payment;
 import com.mesofi.payments.repository.PaymentRepository;
+import com.mesofi.payments.repository.UnitRepository;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -26,11 +29,13 @@ public class PaymentsListingView extends VerticalLayout {
     private static final long serialVersionUID = -3301431192190235841L;
 
     private final PaymentRepository paymentRepository;
+    private final UnitRepository unitRepository;
     private final Grid<Payment> grid = new Grid<>();
     private PaymentsForm form;
 
-    public PaymentsListingView(PaymentRepository paymentRepository) {
+    public PaymentsListingView(PaymentRepository paymentRepository, UnitRepository unitRepository) {
         this.paymentRepository = paymentRepository;
+        this.unitRepository = unitRepository;
 
         setSizeFull();
 
@@ -48,7 +53,7 @@ public class PaymentsListingView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new PaymentsForm();
+        form = new PaymentsForm(getAllRecords(unitRepository));
         form.setWidth("25em");
         form.addSaveListener(this::savePayment);
         form.addDeleteListener(this::deleteFigure);
@@ -83,17 +88,17 @@ public class PaymentsListingView extends VerticalLayout {
     }
 
     private void populateGrid() {
-        populateGrid(getAllPayments(paymentRepository));
+        populateGrid(getAllRecords(paymentRepository));
     }
 
     private void populateGrid(List<Payment> items) {
         grid.setItems(items);
     }
 
-    private List<Payment> getAllPayments(PaymentRepository paymentRepository) {
-        List<Payment> allPayments = new ArrayList<>();
-        paymentRepository.findAll().forEach(allPayments::add);
-        return allPayments;
+    private <T> List<T> getAllRecords(CrudRepository<T, Long> crudRepository) {
+        List<T> allRecords = new ArrayList<>();
+        crudRepository.findAll().forEach(allRecords::add);
+        return allRecords;
     }
 
     private Component getToolBar() {
@@ -114,8 +119,10 @@ public class PaymentsListingView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
+        grid.addColumn(Payment::getUnit).setHeader("Unit");
         grid.addColumn(Payment::getAmount).setHeader("Amount");
-        grid.addColumn(Payment::getRemarks).setHeader("Remarks");
+        grid.addColumn(Payment::getPaymentDate).setHeader("Payment Date");
+        grid.addColumn(Payment::getRemarks).setHeader("Additional Information");
 
         grid.getColumns().forEach($ -> $.setAutoWidth(true));
         grid.asSingleSelect().addValueChangeListener(e -> editPayment(e.getValue()));
@@ -128,7 +135,7 @@ public class PaymentsListingView extends VerticalLayout {
 
     private void editPayment(Payment selectedPayment) {
         if (Objects.isNull(selectedPayment)) {
-
+            closeEditor();
         } else {
             form.setPaymentView(selectedPayment);
             form.setVisible(true);

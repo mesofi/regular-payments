@@ -1,14 +1,18 @@
 package com.mesofi.payments.views;
 
 import java.io.Serial;
+import java.util.List;
 
 import com.mesofi.payments.entity.Payment;
+import com.mesofi.payments.entity.Unit;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -19,7 +23,9 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.shared.Registration;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PaymentsForm extends FormLayout {
 
     @Serial
@@ -29,7 +35,9 @@ public class PaymentsForm extends FormLayout {
     Binder<Payment> binder = new BeanValidationBinder<>(Payment.class);
 
     // Form fields
+    ComboBox<Unit> unit = new ComboBox<>("Select a Unit");
     TextField amount = new TextField("Amount");
+    DatePicker paymentDate = new DatePicker("Payment Date");
     TextArea remarks = new TextArea("Additional information");
 
     // Command buttons
@@ -37,10 +45,13 @@ public class PaymentsForm extends FormLayout {
     Button delete = new Button("Delete");
     Button cancel = new Button("Cancel");
 
-    public PaymentsForm() {
+    public PaymentsForm(List<Unit> allUnits) {
         binder.bindInstanceFields(this);
 
-        add(amount, remarks, createButtonLayout());
+        unit.setItems(allUnits);
+        unit.setItemLabelGenerator(Unit::getNumber);
+
+        add(unit, amount, paymentDate, remarks, createButtonLayout());
     }
 
     private Component createButtonLayout() {
@@ -68,7 +79,7 @@ public class PaymentsForm extends FormLayout {
             binder.writeBean(selectedPayment);
             fireEvent(new SaveEvent(this, selectedPayment));
         } catch (ValidationException e) {
-            e.printStackTrace();
+            log.error("Error while validating and saving the payment", e);
         }
     }
 

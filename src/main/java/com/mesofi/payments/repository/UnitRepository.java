@@ -9,8 +9,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.mesofi.payments.entity.Unit;
 
-//@RepositoryRestResource(collectionResourceRel = "units", path = "units")
-public interface UnitRepository{// extends PagingAndSortingRepository<Unit, Long>, CrudRepository<Unit, Long> {
+@RepositoryRestResource(collectionResourceRel = "units", path = "units")
+public interface UnitRepository extends PagingAndSortingRepository<Unit, Long>, CrudRepository<Unit, Long> {
 
     List<Unit> findByNumber(@Param("number") String number);
 
