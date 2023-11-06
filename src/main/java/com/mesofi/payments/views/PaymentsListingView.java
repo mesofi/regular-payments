@@ -1,0 +1,137 @@
+package com.mesofi.payments.views;
+
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import com.mesofi.payments.entity.Payment;
+import com.mesofi.payments.repository.PaymentRepository;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@PageTitle("Payments")
+@Route(value = "ui")
+public class PaymentsListingView extends VerticalLayout {
+
+    @Serial
+    private static final long serialVersionUID = -3301431192190235841L;
+
+    private final PaymentRepository paymentRepository;
+    private final Grid<Payment> grid = new Grid<>();
+    private PaymentsForm form;
+
+    public PaymentsListingView(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+
+        setSizeFull();
+
+        configureGrid();
+        configureForm();
+
+        add(getToolBar(), getContent());
+        populateGrid();
+        closeEditorForm();
+    }
+
+    private void closeEditorForm() {
+        form.setPaymentView(null);
+        form.setVisible(false);
+    }
+
+    private void configureForm() {
+        form = new PaymentsForm();
+        form.setWidth("25em");
+        form.addSaveListener(this::savePayment);
+        form.addDeleteListener(this::deleteFigure);
+        form.addCloseListener(e -> closeEditor());
+    }
+
+    private void closeEditor() {
+        form.setPaymentView(null);
+        form.setVisible(false);
+    }
+
+    private void savePayment(PaymentsForm.SaveEvent event) {
+        Payment payment = event.getPayment();
+        long id = payment.getId();
+        if (id == 0) {
+            log.debug("A new payment will be created");
+        } else {
+            log.debug("Existing payment with id: {} will be updated", id);
+        }
+        paymentRepository.save(payment);
+        populateGrid();
+        closeEditor();
+    }
+
+    private void deleteFigure(PaymentsForm.DeleteEvent event) {
+        Payment payment = event.getPayment();
+        log.debug("Deleting a payment record with id: {}", payment.getId());
+
+        paymentRepository.delete(payment);
+        populateGrid();
+        closeEditor();
+    }
+
+    private void populateGrid() {
+        populateGrid(getAllPayments(paymentRepository));
+    }
+
+    private void populateGrid(List<Payment> items) {
+        grid.setItems(items);
+    }
+
+    private List<Payment> getAllPayments(PaymentRepository paymentRepository) {
+        List<Payment> allPayments = new ArrayList<>();
+        paymentRepository.findAll().forEach(allPayments::add);
+        return allPayments;
+    }
+
+    private Component getToolBar() {
+        Button button = new Button("Add new Payment");
+        button.addClickListener(e -> addNewPayment());
+        HorizontalLayout toolBar = new HorizontalLayout(button);
+        toolBar.addClassName("figure-toolbar-class");
+        return toolBar;
+    }
+
+    private Component getContent() {
+        HorizontalLayout content = new HorizontalLayout(grid, form);
+        content.setFlexGrow(2, grid);
+        content.setFlexGrow(1, form);
+        content.setSizeFull();
+        return content;
+    }
+
+    private void configureGrid() {
+        grid.setSizeFull();
+        grid.addColumn(Payment::getAmount).setHeader("Amount");
+        grid.addColumn(Payment::getRemarks).setHeader("Remarks");
+
+        grid.getColumns().forEach($ -> $.setAutoWidth(true));
+        grid.asSingleSelect().addValueChangeListener(e -> editPayment(e.getValue()));
+    }
+
+    private void addNewPayment() {
+        grid.asSingleSelect().clear();
+        editPayment(new Payment());
+    }
+
+    private void editPayment(Payment selectedPayment) {
+        if (Objects.isNull(selectedPayment)) {
+
+        } else {
+            form.setPaymentView(selectedPayment);
+            form.setVisible(true);
+        }
+    }
+}

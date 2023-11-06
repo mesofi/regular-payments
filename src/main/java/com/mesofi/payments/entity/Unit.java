@@ -17,7 +17,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@Entity
+//@Entity
 public class Unit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
